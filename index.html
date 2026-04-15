@@ -1,12 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yu-Gi-Oh Cards</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: radial-gradient(circle at top, #1a1a1a, #0d0d0d);
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    text-align: center;
+    padding: 25px;
+    background: #111;
+    border-bottom: 2px solid #e67e22;
+}
+
+header h1 {
+    color: #e67e22;
+}
+
+main {
+    padding: 30px;
+}
+
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #1a1a1a;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 1px solid #333;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    border-color: #e67e22;
+    box-shadow: 0 10px 20px rgba(230,126,34,0.3);
+}
+
+.card img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 15px;
+}
+
+.card h3 {
+    color: #e67e22;
+}
+
+.btn-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #e67e22;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #cf711f;
+}
+
+footer {
+    margin-top: 40px;
+    padding: 15px;
+    text-align: center;
+    background: #111;
+    border-top: 2px solid #e67e22;
+}
+</style>
 </head>
+
 <body>
-    <h1>Hello Word</h1>
-    <teste></teste>
+
+<header>
+    <h1>Yu Gi Oh Cards
+    <p>Cartas do jogo</p>
+</header>
+
+<main>
+    <div class="cards-container" id="cardsContainer"></div>
+
+    <div class="btn-container">
+        <button onclick="carregarMais()">Carregar mais</button>
+    </div>
+</main>
+
+<footer>
+    <p>PWIII - API Yu-Gi-Oh</p>
+</footer>
+
+<script>
+let todasCartas = []
+let quantidade = 50
+
+const container = document.getElementById("cardsContainer")
+
+async function carregarCartas() {
+
+    container.innerHTML = "<p>Carregando cartas...</p>"
+
+    try {
+        const resposta = await fetch("https://db.ygoprodeck.com/api/v7/cardinfo.php")
+        const dados = await resposta.json()
+
+        todasCartas = dados.data
+
+        renderCartas()
+
+    } catch (erro) {
+        console.error(erro)
+        container.innerHTML = "<p>Erro ao carregar cartas</p>"
+    }
+}
+
+function renderCartas() {
+
+    container.innerHTML = ""
+
+    const lista = todasCartas.slice(0, quantidade)
+
+    lista.forEach(carta => {
+
+        const imagem = carta.card_images?.[0]?.image_url
+
+        const card = document.createElement("div")
+        card.classList.add("card")
+
+        card.innerHTML = `
+            <img src="${imagem}" 
+                 onerror="this.src='https://via.placeholder.com/300x300?text=Sem+Imagem'">
+
+            <div class="card-content">
+                <h3>${carta.name}</h3>
+                <p><strong>Tipo:</strong> ${carta.type}</p>
+                <p><strong>ATK:</strong> ${carta.atk ?? "—"}</p>
+                <p><strong>DEF:</strong> ${carta.def ?? "—"}</p>
+            </div>
+        `
+
+        container.appendChild(card)
+    })
+}
+
+function carregarMais() {
+    quantidade += 50
+    renderCartas()
+}
+
+// inicia
+document.addEventListener("DOMContentLoaded", carregarCartas)
+</script>
+
 </body>
 </html>
